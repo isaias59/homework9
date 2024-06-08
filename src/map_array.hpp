@@ -22,68 +22,20 @@ public:
 
         explicit ArrayIterator(pointer ptr = nullptr) : ptr(ptr) {}
 
-        ArrayIterator& operator++() 
-        {
-            ++ptr;
-            return *this;
-        }
-        ArrayIterator& operator--() 
-        {
-            --ptr;
-            return *this; 
-        }
-        ArrayIterator operator++(int) 
-        {
-            ArrayIterator temp = *this; 
-            ++(*this); return temp;
-        }
-        ArrayIterator operator--(int) 
-        {
-            ArrayIterator temp = *this;
-            --(*this);
-            return temp;
-        }
-        ArrayIterator& operator+=(difference_type d)
-        { ptr += d;
-        return *this; 
-        }
-        ArrayIterator& operator-=(difference_type d)
-        {
-            ptr -= d; 
-            return *this; 
-        }
-        friend ArrayIterator operator+(ArrayIterator it, difference_type d)
-        { 
-            it += d;
-            return it; 
-        }
-        friend ArrayIterator operator+(difference_type d, ArrayIterator it)
-        { 
-            it += d;
-            return it; 
-        }
-        friend ArrayIterator operator-(ArrayIterator it, difference_type d)
-        {
-            it -= d; 
-            return it;
-        }
-        friend difference_type operator-(ArrayIterator lhs, ArrayIterator rhs)
-        {
-            return lhs.ptr - rhs.ptr; 
-        }
+        ArrayIterator& operator++() { ++ptr; return *this; }
+        ArrayIterator& operator--() { --ptr; return *this; }
+        ArrayIterator operator++(int) { ArrayIterator temp = *this; ++(*this); return temp; }
+        ArrayIterator operator--(int) { ArrayIterator temp = *this; --(*this); return temp; }
+        ArrayIterator& operator+=(difference_type d) { ptr += d; return *this; }
+        ArrayIterator& operator-=(difference_type d) { ptr -= d; return *this; }
+        friend ArrayIterator operator+(ArrayIterator it, difference_type d) { it += d; return it; }
+        friend ArrayIterator operator+(difference_type d, ArrayIterator it) { it += d; return it; }
+        friend ArrayIterator operator-(ArrayIterator it, difference_type d) { it -= d; return it; }
+        friend difference_type operator-(ArrayIterator lhs, ArrayIterator rhs) { return lhs.ptr - rhs.ptr; }
         auto operator<=>(const ArrayIterator& other) const = default;
-        reference operator*() const 
-        {
-            return *ptr;
-        }
-        pointer operator->() const
-        { 
-            return ptr; 
-        }
-        reference operator[](difference_type d) const
-        {
-            return ptr[d]; 
-        }
+        reference operator*() const { return *ptr; }
+        pointer operator->() const { return ptr; }
+        reference operator[](difference_type d) const { return ptr[d]; }
 
     private:
         pointer ptr;
@@ -107,8 +59,7 @@ Value& MapArray<Key, Value>::operator[](const Key& key) {
 
     if (it != data.end()) {
         return it->second;
-    }
-    else {
+    } else {
         data.emplace_back(key, Value{});
         return data.back().second;
     }
