@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -46,10 +45,18 @@ public:
 
     iterator begin() { return iterator(data.data()); }
     iterator end() { return iterator(data.data() + data.size()); }
+    const iterator begin() const { return iterator(data.data()); }
+    const iterator end() const { return iterator(data.data() + data.size()); }
     Value& operator[](const Key& key);
 
 private:
     std::vector<value_type> data;
+
+    void sortData() {
+        std::sort(data.begin(), data.end(), [](const value_type& a, const value_type& b) {
+            return a.first < b.first;
+            });
+    }
 };
 
 template <typename Key, typename Value>
@@ -59,10 +66,14 @@ Value& MapArray<Key, Value>::operator[](const Key& key) {
 
     if (it != data.end()) {
         return it->second;
-    } else {
+    }
+    else {
         data.emplace_back(key, Value{});
-        return data.back().second;
+        sortData();
+        it = std::find_if(data.begin(), data.end(),
+            [&key](const value_type& p) { return p.first == key; });
+        return it->second;
     }
 }
 
-#endif 
+#endif
