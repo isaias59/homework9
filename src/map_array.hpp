@@ -11,44 +11,107 @@ template <typename Key, typename Value>
 class MapArray
 {
 public:
-	class ArrayIterator
-	{
-	public: 
-		using iterator_category = ? ? ? ;
-		using value_type = ? ? ? ;
-		using difference_type = ? ? ? ;
-		using pointer = ? ? ? ;
-		using reference = ? ? ? ;
+    class ArrayIterator
+    {
+    public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = std::pair<Key, Value>;
+        using difference_type = std::ptrdiff_t;
+        using pointer = std::pair<Key, Value>*;
+        using reference = std::pair<Key, Value>&;
 
-		explicit ArrayIterator(std::pair<Key, Value>* ptr = nullptr);
+        explicit ArrayIterator(pointer ptr = nullptr) : ptr(ptr) {}
 
-		ArrayIterator& operator ++();
-		ArrayIterator& operator --();
-		ArrayIterator operator++(int);
-		ArrayIterator operator--(int);
-		ArrayIterator& operator +=(diffrence_type d);
-		ArrayIterator& -= (diffrence_type d);
-		friend ArrayIterator operator+(ArrayIterator it, diffrence_type d);
-		friend ArrayIterator operator+ (diffrence_type d, ArrayIterator it);
-		friend ArrayIterator operator-(ArrayIterator it, diffrence_type d);
-		friend difference_type operator-(ArrayIterator lhs, ArrayIterator rhs);
-		auto operator <=>(const ArrayIterator& other) const = default;
-		std::pair<Key, Value>& operator* ()const;
-		std::pair<Key, Value>* operator ->()const;
-		std::pair<Key, Value>& operator[](difference_type d) const;
+        ArrayIterator& operator++() 
+        {
+            ++ptr;
+            return *this;
+        }
+        ArrayIterator& operator--() 
+        {
+            --ptr;
+            return *this; 
+        }
+        ArrayIterator operator++(int) 
+        {
+            ArrayIterator temp = *this; 
+            ++(*this); return temp;
+        }
+        ArrayIterator operator--(int) 
+        {
+            ArrayIterator temp = *this;
+            --(*this);
+            return temp;
+        }
+        ArrayIterator& operator+=(difference_type d)
+        { ptr += d;
+        return *this; 
+        }
+        ArrayIterator& operator-=(difference_type d)
+        {
+            ptr -= d; 
+            return *this; 
+        }
+        friend ArrayIterator operator+(ArrayIterator it, difference_type d)
+        { 
+            it += d;
+            return it; 
+        }
+        friend ArrayIterator operator+(difference_type d, ArrayIterator it)
+        { 
+            it += d;
+            return it; 
+        }
+        friend ArrayIterator operator-(ArrayIterator it, difference_type d)
+        {
+            it -= d; 
+            return it;
+        }
+        friend difference_type operator-(ArrayIterator lhs, ArrayIterator rhs)
+        {
+            return lhs.ptr - rhs.ptr; 
+        }
+        auto operator<=>(const ArrayIterator& other) const = default;
+        reference operator*() const 
+        {
+            return *ptr;
+        }
+        pointer operator->() const
+        { 
+            return ptr; 
+        }
+        reference operator[](difference_type d) const
+        {
+            return ptr[d]; 
+        }
 
-	private: std::pair<Key, Value>* ptr;
-	};
+    private:
+        pointer ptr;
+    };
 
-	using value_type = std::pair<Key, Value>;
-	using iterator = ArrayIterator;
+    using value_type = std::pair<Key, Value>;
+    using iterator = ArrayIterator;
 
-	ArrayIterator begin();
-	ArrayIterator end();
-	Value& operator[](const Key& key);
-	
+    iterator begin() { return iterator(data.data()); }
+    iterator end() { return iterator(data.data() + data.size()); }
+    Value& operator[](const Key& key);
+
 private:
-	std::vector<std::pair<Key, Value>> data;
+    std::vector<value_type> data;
 };
 
-#endif // !MAP_ARRAY_HPP
+template <typename Key, typename Value>
+Value& MapArray<Key, Value>::operator[](const Key& key) {
+    auto it = std::find_if(data.begin(), data.end(),
+        [&key](const value_type& p) { return p.first == key; });
+
+    if (it != data.end()) {
+        return it->second;
+    }
+    else {
+        data.emplace_back(key, Value{});
+        return data.back().second;
+    }
+}
+
+#endif 
